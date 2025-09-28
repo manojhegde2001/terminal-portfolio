@@ -1,26 +1,951 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap'); */
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* VS Code Color Palette */
+  --vscode-bg: #1e1e1e;
+  --vscode-bg-light: #252526;
+  --vscode-bg-lighter: #2d2d30;
+  --vscode-border: #3e3e42;
+  --vscode-text: #cccccc;
+  --vscode-text-muted: #969696;
+  --vscode-accent: #007acc;
+  --vscode-success: #4ec9b0;
+  --vscode-error: #f14c4c;
+  --vscode-warning: #ffcc02;
+  --vscode-purple: #c586c0;
+  --vscode-blue: #569cd6;
+  --vscode-green: #6a9955;
+  --vscode-orange: #ce9178;
+  --vscode-cyan: #4ec9b0;
+  
+  /* Theme Variables */
+  --terminal-bg: var(--vscode-bg);
+  --terminal-text: var(--vscode-text);
+  --terminal-accent: var(--vscode-accent);
+  --terminal-border: var(--vscode-border);
+  --terminal-prompt: var(--vscode-success);
+  --terminal-path: var(--vscode-blue);
+  --terminal-cursor: var(--vscode-text);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+html, body {
+  font-family: 'JetBrains Mono', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  background: var(--terminal-bg);
+  color: var(--terminal-text);
+  height: 100vh;
+  overflow: hidden;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Terminal Container */
+.terminal-container {
+  background: var(--terminal-bg);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+/* Terminal Header - VS Code Style */
+.terminal-header {
+  background: var(--vscode-bg-light);
+  border-bottom: 1px solid var(--terminal-border);
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 35px;
+  user-select: none;
+  -webkit-app-region: drag;
+}
+
+.terminal-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--terminal-text);
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.terminal-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--vscode-text-muted);
+  font-size: 12px;
+  -webkit-app-region: no-drag;
+}
+
+.control-button {
+  background: transparent;
+  border: 1px solid var(--terminal-border);
+  color: var(--terminal-text);
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.control-button:hover {
+  background: var(--vscode-bg-lighter);
+  border-color: var(--terminal-accent);
+}
+
+.control-button:active {
+  transform: translateY(1px);
+}
+
+/* Traffic Light Buttons */
+.traffic-lights {
+  display: flex;
+  gap: 8px;
+  -webkit-app-region: no-drag;
+}
+
+.traffic-light {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.traffic-light.close { background: #ff5f56; }
+.traffic-light.minimize { background: #ffbd2e; }
+.traffic-light.maximize { background: #27ca3f; }
+
+.traffic-light:hover {
+  opacity: 0.8;
+  transform: scale(1.1);
+}
+
+.traffic-light:active {
+  transform: scale(0.95);
+}
+
+/* Terminal Content Area */
+.terminal-content {
+  flex: 1;
+  background: var(--terminal-bg);
+  padding: 12px 16px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  font-family: inherit;
+  position: relative;
+}
+
+/* Custom Scrollbar - VS Code Style */
+.terminal-content::-webkit-scrollbar {
+  width: 10px;
+}
+
+.terminal-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.terminal-content::-webkit-scrollbar-thumb {
+  background: var(--vscode-bg-lighter);
+  border-radius: 5px;
+  border: 2px solid var(--terminal-bg);
+}
+
+.terminal-content::-webkit-scrollbar-thumb:hover {
+  background: var(--terminal-border);
+}
+
+/* Command Line */
+.command-line {
+  display: flex;
+  align-items: baseline;
+  margin: 2px 0;
+  font-family: inherit;
+  line-height: 1.5;
+}
+
+.command-prompt {
+  color: var(--terminal-prompt);
+  font-weight: 500;
+  margin-right: 8px;
+  user-select: none;
+}
+
+.command-path {
+  color: var(--terminal-path);
+  margin-right: 4px;
+  user-select: none;
+}
+
+.command-separator {
+  color: var(--vscode-text-muted);
+  margin-right: 8px;
+  user-select: none;
+}
+
+.command-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--terminal-text);
+  font-family: inherit;
+  font-size: inherit;
+  flex: 1;
+  caret-color: var(--terminal-cursor);
+  line-height: inherit;
+}
+
+.command-input::selection {
+  background: var(--terminal-accent);
+  color: white;
+}
+
+/* Terminal Cursor */
+.terminal-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 18px;
+  background: var(--terminal-cursor);
+  margin-left: 1px;
+  animation: cursor-blink 1.2s infinite;
+  vertical-align: text-bottom;
+}
+
+@keyframes cursor-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* Output Styling */
+.command-output {
+  margin: 0;
+  padding: 2px 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-family: inherit;
+  line-height: 1.5;
+}
+
+.output-success { color: var(--vscode-success); }
+.output-error { color: var(--vscode-error); }
+.output-warning { color: var(--vscode-warning); }
+.output-info { color: var(--vscode-blue); }
+.output-muted { color: var(--vscode-text-muted); }
+
+/* Command History */
+.command-history {
+  display: flex;
+  align-items: baseline;
+  margin: 1px 0;
+  opacity: 0.9;
+}
+
+.command-history .command-prompt {
+  opacity: 0.7;
+}
+
+.command-executed {
+  color: var(--terminal-text);
+  margin-left: 8px;
+}
+
+.command-timestamp {
+  color: var(--vscode-text-muted);
+  font-size: 11px;
+  margin-left: auto;
+  padding-left: 12px;
+  opacity: 0.6;
+}
+
+/* Loading States */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 20px;
+}
+
+.loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--terminal-border);
+  border-top: 2px solid var(--terminal-accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  color: var(--vscode-text-muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+/* Quick Commands Bar */
+.quick-commands {
+  background: var(--vscode-bg-light);
+  border-bottom: 1px solid var(--terminal-border);
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.quick-command-label {
+  color: var(--vscode-text-muted);
+  font-size: 12px;
+  margin-right: 4px;
+}
+
+.quick-command-btn {
+  background: transparent;
+  border: 1px solid var(--terminal-border);
+  color: var(--terminal-text);
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.quick-command-btn:hover:not(:disabled) {
+  background: var(--vscode-bg-lighter);
+  border-color: var(--terminal-accent);
+  transform: translateY(-1px);
+}
+
+.quick-command-btn:active {
+  transform: translateY(0);
+}
+
+.quick-command-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Status Bar */
+.status-bar {
+  background: var(--terminal-accent);
+  color: white;
+  padding: 4px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  height: 24px;
+}
+
+.status-left, .status-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Keyboard Shortcuts */
+.kbd {
+  background: var(--vscode-bg-lighter);
+  border: 1px solid var(--terminal-border);
+  border-radius: 3px;
+  padding: 2px 6px;
+  font-size: 10px;
+  font-family: inherit;
+  color: var(--vscode-text-muted);
+  margin: 0 2px;
+}
+
+/* Themes */
+.theme-cyberpunk {
+  --terminal-bg: #0f0f23;
+  --terminal-text: #00d9ff;
+  --terminal-accent: #ff0080;
+  --terminal-prompt: #00ff88;
+  --terminal-path: #ff8c00;
+  --terminal-cursor: #00d9ff;
+}
+
+.theme-retro {
+  --terminal-bg: #2b1810;
+  --terminal-text: #ff8c42;
+  --terminal-accent: #ffff00;
+  --terminal-prompt: #00ff00;
+  --terminal-path: #00ffff;
+  --terminal-cursor: #ff8c42;
+}
+
+.theme-classic {
+  --terminal-bg: #000000;
+  --terminal-text: #00ff00;
+  --terminal-accent: #ffff00;
+  --terminal-prompt: #00ff00;
+  --terminal-path: #00ffff;
+  --terminal-cursor: #00ff00;
+}
+
+/* Welcome Animation */
+.welcome-message {
+  background: var(--vscode-bg-light);
+  border: 1px solid var(--terminal-border);
+  border-radius: 6px;
+  padding: 16px;
+  margin: 8px 0 16px 0;
+  position: relative;
+}
+
+.welcome-message::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--terminal-accent);
+  border-radius: 2px 0 0 2px;
+}
+
+.typing-animation {
+  overflow: hidden;
+  white-space: nowrap;
+  animation: typing 3s steps(60, end);
+}
+
+@keyframes typing {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+/* Matrix Rain Effect */
+.matrix-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 10;
+  overflow: hidden;
+}
+
+.matrix-char {
+  position: absolute;
+  color: var(--terminal-prompt);
+  font-weight: bold;
+  text-shadow: 0 0 10px currentColor;
+  animation: matrix-fall 3s linear forwards;
+  opacity: 0.8;
+}
+
+@keyframes matrix-fall {
+  0% {
+    transform: translateY(-100px);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(calc(100vh + 100px));
+    opacity: 0;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Responsive Design */
+@media (max-width: 768px) {
+  .terminal-header {
+    padding: 6px 12px;
+    height: 32px;
+  }
+  
+  .terminal-content {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  
+  .quick-commands {
+    padding: 6px 12px;
+  }
+  
+  .terminal-title {
+    font-size: 12px;
+  }
+  
+  .terminal-controls {
+    font-size: 11px;
+    gap: 8px;
+  }
+  
+  .traffic-lights {
+    gap: 6px;
+  }
+  
+  .traffic-light {
+    width: 10px;
+    height: 10px;
+  }
+}
+
+/* Smooth Transitions */
+* {
+  transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+}
+
+/* Focus States */
+.command-input:focus {
+  outline: none;
+}
+
+/* Selection Styles */
+::selection {
+  background: var(--terminal-accent);
+  color: white;
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  :root {
+    --terminal-border: #ffffff;
+    --vscode-text-muted: #cccccc;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.editor-container {
+  display: flex;
+  height: calc(100vh - 35px); /* Subtract header height */
+  background: var(--terminal-bg);
+}
+
+/* Sidebar - File Explorer */
+.sidebar {
+  width: 240px;
+  background: var(--vscode-bg-light);
+  border-right: 1px solid var(--terminal-border);
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s ease;
+  overflow: hidden;
+}
+
+.sidebar.collapsed {
+  width: 50px;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--vscode-bg);
+  border-bottom: 1px solid var(--terminal-border);
+  height: 35px;
+}
+
+.sidebar-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--vscode-text-muted);
+  letter-spacing: 0.5px;
+}
+
+.sidebar-toggle {
+  background: transparent;
+  border: none;
+  color: var(--vscode-text-muted);
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 3px;
+  font-size: 12px;
+  transition: all 0.15s ease;
+}
+
+.sidebar-toggle:hover {
+  background: var(--vscode-bg-lighter);
+  color: var(--terminal-text);
+}
+
+/* File Explorer */
+.file-explorer {
+  flex: 1;
+  padding: 8px 0;
+  overflow-y: auto;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+  color: var(--terminal-text);
+  font-size: 13px;
+  transition: all 0.15s ease;
+  user-select: none;
+  border-radius: 0;
+  margin: 1px 4px;
+}
+
+.file-item:hover {
+  background: var(--vscode-bg-lighter);
+}
+
+.file-item.active {
+  background: var(--terminal-accent);
+  color: white;
+}
+
+.file-item.active .file-icon {
+  filter: brightness(1.2);
+}
+
+.file-icon {
+  font-size: 14px;
+  min-width: 16px;
+  text-align: center;
+}
+
+.file-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Terminal Area */
+.terminal-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--terminal-bg);
+  position: relative;
+}
+
+/* Welcome Message */
+.welcome-message {
+  background: var(--vscode-bg-light);
+  border-bottom: 1px solid var(--terminal-border);
+  padding: 12px 16px;
+  color: var(--vscode-success);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  border-left: 4px solid var(--terminal-accent);
+}
+
+/* Terminal Content Updates */
+.terminal-content {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--terminal-bg);
+}
+
+/* Command Input Placeholder */
+.command-input::placeholder {
+  color: var(--vscode-text-muted);
+  opacity: 0.6;
+  font-style: italic;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 200px;
+  }
+  
+  .sidebar.collapsed {
+    width: 45px;
+  }
+  
+  .file-item {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+  
+  .terminal-content {
+    padding: 12px;
+    font-size: 13px;
+  }
+}
+
+/* Smooth scrollbar for sidebar */
+.file-explorer::-webkit-scrollbar {
+  width: 6px;
+}
+
+.file-explorer::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.file-explorer::-webkit-scrollbar-thumb {
+  background: var(--terminal-border);
+  border-radius: 3px;
+}
+
+.file-explorer::-webkit-scrollbar-thumb:hover {
+  background: var(--vscode-text-muted);
+}
+
+/* Enhanced active states */
+.file-item.active {
+  background: linear-gradient(90deg, var(--terminal-accent), var(--terminal-accent));
+  box-shadow: inset 3px 0 0 var(--vscode-accent);
+}
+
+/* Loading container adjustment */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: calc(100vh - 35px);
+  gap: 20px;
+}
+
+.terminal-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--terminal-bg);
+  position: relative;
+  height: calc(100vh - 35px);
+}
+
+/* Terminal Content - Scrollable area */
+.terminal-content {
+  flex: 1;
+  padding: 16px 16px 0 16px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--terminal-bg);
+  min-height: 0; /* Important for flex scrolling */
+}
+
+/* Terminal Output */
+.terminal-output {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 20px; /* Space before fixed input */
+}
+
+.output-block {
+  margin-bottom: 8px;
+}
+
+/* Fixed Bottom Input Container */
+.terminal-input-container {
+  position: sticky;
+  bottom: 0;
+  background: var(--terminal-bg);
+  border-top: 1px solid var(--terminal-border);
+  padding: 12px 16px;
+  z-index: 100;
+}
+
+/* Command Line in Fixed Container */
+.terminal-input-container .command-line {
+  display: flex;
+  align-items: baseline;
+  font-family: 'JetBrains Mono', monospace;
+  line-height: 1.5;
+  background: var(--terminal-bg);
+}
+
+/* Typewriter Animation Styles */
+.typewriter-output {
+  font-family: 'JetBrains Mono', monospace;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.typewriter-cursor {
+  display: inline-block;
+  background: var(--terminal-cursor);
+  width: 8px;
+  height: 18px;
+  margin-left: 2px;
+  animation: cursor-blink 1s infinite;
+  vertical-align: text-bottom;
+}
+
+/* Enhanced Sidebar Toggle */
+.sidebar-toggle {
+  background: transparent;
+  border: none;
+  color: var(--vscode-text-muted);
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  transition: all 0.15s ease;
+  min-width: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-toggle:hover {
+  background: var(--vscode-bg-lighter);
+  color: var(--terminal-text);
+  transform: scale(1.1);
+}
+
+/* Sidebar Collapse Animation */
+.sidebar {
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.sidebar.collapsed {
+  width: 48px;
+}
+
+.sidebar.collapsed .sidebar-title {
+  opacity: 0;
+  width: 0;
+}
+
+.sidebar.collapsed .file-name {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+}
+
+.sidebar.collapsed .file-item {
+  justify-content: center;
+  padding: 8px;
+  margin: 2px;
+}
+
+/* File Item Enhancements */
+.file-item {
+  position: relative;
+  transition: all 0.15s ease;
+}
+
+.file-item:hover {
+  background: var(--vscode-bg-lighter);
+  transform: translateX(2px);
+}
+
+.file-item.active {
+  background: var(--terminal-accent);
+  color: white;
+  box-shadow: inset 3px 0 0 rgba(255, 255, 255, 0.3);
+}
+
+/* Tooltip for collapsed sidebar */
+.sidebar.collapsed .file-item:hover::after {
+  content: attr(title);
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--vscode-bg-lighter);
+  color: var(--terminal-text);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  white-space: nowrap;
+  z-index: 1000;
+  margin-left: 8px;
+  border: 1px solid var(--terminal-border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Input placeholder styling */
+.command-input::placeholder {
+  color: var(--vscode-text-muted);
+  opacity: 0.7;
+  font-style: italic;
+}
+
+.command-input:disabled::placeholder {
+  color: var(--terminal-accent);
+  opacity: 0.8;
+}
+
+/* Smooth scrolling */
+.terminal-content {
+  scroll-behavior: smooth;
+}
+
+/* Enhanced welcome message */
+.welcome-message {
+  background: linear-gradient(90deg, var(--vscode-bg-light), var(--terminal-bg));
+  border-bottom: 1px solid var(--terminal-border);
+  padding: 12px 16px;
+  color: var(--vscode-success);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  border-left: 4px solid var(--terminal-accent);
+  position: relative;
+  overflow: hidden;
+}
+
+.welcome-message::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  animation: shimmer 2s ease-in-out;
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .terminal-input-container {
+    padding: 8px 12px;
+  }
+  
+  .terminal-content {
+    padding: 12px 12px 0 12px;
+  }
+  
+  .sidebar.collapsed {
+    width: 44px;
+  }
 }
